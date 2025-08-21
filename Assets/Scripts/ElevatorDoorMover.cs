@@ -6,60 +6,46 @@ public class ElevatorDoorMover : MonoBehaviour
     [SerializeField] GameObject leftDoor;
     [SerializeField] GameObject rightDoor;
 
-    [SerializeField] InputAction doorOperate;
+    [SerializeField] InputAction doorOperateOpen;
+    [SerializeField] InputAction doorOperateClosed;
 
     [SerializeField] float doorSpeed = 1f;
 
-    Rigidbody rbLeftDoor;
-    Rigidbody rbRightDoor;
+    Vector3 leftDoorOpenLocal;
+    Vector3 rightDoorOpenLocal; 
+    Vector3 leftDoorCloseLocal; 
+    Vector3 rightDoorCloseLocal; 
 
-    private float leftDoorOpenPosition = 1.475f;
-    private float rightDoorOpenPosition = -1.475f;
-    private float leftDoorClosePosition = 0.825f;
-    private float rightDoorClosePosition = -0.825f;
+    float doorOpenDistance = -0.75f;
 
     void Start()
     {
-        doorOperate.Enable();
-       
-        rbLeftDoor = leftDoor.GetComponent<Rigidbody>();
-        rbRightDoor = rightDoor.GetComponent<Rigidbody>();
+        doorOperateOpen.Enable();
+        doorOperateClosed.Enable();
+
+        leftDoorCloseLocal = leftDoor.transform.localPosition;
+        rightDoorCloseLocal = rightDoor.transform.localPosition;
+
+        leftDoorOpenLocal = leftDoorCloseLocal + Vector3.left * doorOpenDistance;
+        rightDoorOpenLocal = rightDoorCloseLocal + Vector3.right * doorOpenDistance;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         ProcessDoorOperations();
-
-        Vector3 leftPos = rbLeftDoor.position;
-        leftPos.x = Mathf.Clamp(leftPos.x, leftDoorClosePosition, leftDoorOpenPosition);
-        rbLeftDoor.position = leftPos;
-
-        Vector3 rightPos = rbRightDoor.position;
-        rightPos.x = Mathf.Clamp(rightPos.x, rightDoorOpenPosition, rightDoorClosePosition);
-        rbRightDoor.position = rightPos;
     }
 
     void ProcessDoorOperations()
     {
-        float doorInput = doorOperate.ReadValue<float>();
-
-        if (doorOperate.IsPressed())
+        if (doorOperateOpen.IsPressed())
         {
-            if (doorInput < 0)
-            {
-                OpenLeftDoor();
-                OpenRightDoor();
-            }
-            else
-            {
-                CloseLeftDoor();
-                CloseRightDoor();
-            }
+            OpenLeftDoor();
+            OpenRightDoor();
         }
-        else
+        else if (doorOperateClosed.IsPressed())
         {
-            rbLeftDoor.linearVelocity = Vector3.zero;
-            rbRightDoor.linearVelocity = Vector3.zero;
+            CloseLeftDoor();
+            CloseRightDoor();
         }
     }
 
@@ -67,8 +53,7 @@ public class ElevatorDoorMover : MonoBehaviour
     {
         if (leftDoor != null)
         {
-            
-            rbLeftDoor.AddForce(Vector3.left * doorSpeed * Time.fixedDeltaTime);
+            leftDoor.transform.localPosition = Vector3.MoveTowards(leftDoor.transform.localPosition, leftDoorOpenLocal, doorSpeed * Time.deltaTime);
         }
     }
 
@@ -76,8 +61,7 @@ public class ElevatorDoorMover : MonoBehaviour
     {
         if (rightDoor != null)
         {
-            
-            rbRightDoor.AddForce(Vector3.right * doorSpeed * Time.fixedDeltaTime);
+            rightDoor.transform.localPosition = Vector3.MoveTowards(rightDoor.transform.localPosition, rightDoorOpenLocal, doorSpeed * Time.deltaTime);
         }
     }
 
@@ -85,8 +69,7 @@ public class ElevatorDoorMover : MonoBehaviour
     {
         if (leftDoor != null)
         {
-            
-            rbLeftDoor.AddForce(Vector3.right * doorSpeed * Time.fixedDeltaTime);
+            leftDoor.transform.localPosition = Vector3.MoveTowards(leftDoor.transform.localPosition, leftDoorCloseLocal, doorSpeed * Time.deltaTime);
         }
     }
 
@@ -94,8 +77,7 @@ public class ElevatorDoorMover : MonoBehaviour
     {
         if (rightDoor != null)
         {
-            
-            rbRightDoor.AddForce(Vector3.left * doorSpeed * Time.fixedDeltaTime);
+            rightDoor.transform.localPosition = Vector3.MoveTowards(rightDoor.transform.localPosition, rightDoorCloseLocal, doorSpeed * Time.deltaTime);
         }
     }
 }
