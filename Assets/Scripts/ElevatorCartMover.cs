@@ -14,10 +14,14 @@ public class ElevatorCartMover : MonoBehaviour
 
     [SerializeField] float cartSpeed = 100f;
 
+    [SerializeField] float arriveThreshold = 0.01f;
+
     Vector3 firstFloor = new Vector3(0, 0, 0);
     Vector3 secondFloor = new Vector3(0, 10, 0);
     Vector3 thirdFloor = new Vector3(0, 20, 0);
     Vector3 fourthFloor = new Vector3(0, 30, 0);
+
+    Vector3 currentTarget;
 
     bool isMoving = false;
 
@@ -28,6 +32,8 @@ public class ElevatorCartMover : MonoBehaviour
         operateToSecondFloor.Enable();
         operateToThirdFloor.Enable();
         operateToFourthFloor.Enable();
+
+        currentTarget = transform.position;
     }
     
     void Update()
@@ -37,31 +43,37 @@ public class ElevatorCartMover : MonoBehaviour
 
     void ProcessMovement()
     {
-       if (operateToFirstFloor.IsPressed())
-       {
-            MoveToFloor(firstFloor);
-            Debug.Log("I'm going to 1st floor!");
-       }
-       else if (operateToSecondFloor.IsPressed())
-       {
-            MoveToFloor(secondFloor);
-            Debug.Log("I'm going to 2nd floor!");
-       }
-       else if (operateToThirdFloor.IsPressed())
-       {
-            MoveToFloor(thirdFloor);
-            Debug.Log("I'm going to 3rd floor!");
-       }
-       else if (operateToFourthFloor.IsPressed())
-       {
-            MoveToFloor(fourthFloor);
-            Debug.Log("I'm going to 4th floor!");
-       }
-    }
+        if (operateToFirstFloor.WasPressedThisFrame()) 
+        { 
+            currentTarget = firstFloor; 
+            isMoving = true; 
+        }
+        else if (operateToSecondFloor.WasPressedThisFrame()) 
+        { 
+            currentTarget = secondFloor; 
+            isMoving = true; 
+        }
+        else if (operateToThirdFloor.WasPressedThisFrame()) 
+        { 
+            currentTarget = thirdFloor; 
+            isMoving = true; 
+        }
+        else if (operateToFourthFloor.WasPressedThisFrame()) 
+        { 
+            currentTarget = fourthFloor; 
+            isMoving = true; 
+        }
 
-    void MoveToFloor(Vector3 vector3floorPosition)
-    {
-        transform.position = Vector3.MoveTowards(transform.position, vector3floorPosition, cartSpeed * Time.deltaTime);
+        if (isMoving)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, currentTarget, cartSpeed * Time.deltaTime);
+
+            if ((transform.position - currentTarget).sqrMagnitude <= arriveThreshold * arriveThreshold)
+            {
+                transform.position = currentTarget;
+                isMoving = false;
+            }
+        }
     }
 }
 

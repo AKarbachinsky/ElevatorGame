@@ -18,6 +18,13 @@ public class ElevatorDoorMover : MonoBehaviour
 
     float doorOpenDistance = -0.75f;
 
+    [SerializeField] float closeThreshold = 0.01f;
+    [SerializeField] float openThreshold = 0.01f;
+    Vector3 currentTargetLeft;
+    Vector3 currentTargetRight;
+    bool isMovingLeft = false;
+    bool isMovingRight = false;
+
     void Start()
     {
         doorOperateOpen.Enable();
@@ -28,6 +35,9 @@ public class ElevatorDoorMover : MonoBehaviour
 
         leftDoorOpenLocal = leftDoorCloseLocal + Vector3.left * doorOpenDistance;
         rightDoorOpenLocal = rightDoorCloseLocal + Vector3.right * doorOpenDistance;
+
+        currentTargetLeft = transform.position;
+        currentTargetRight = transform.position;
     }
 
     void Update()
@@ -39,45 +49,40 @@ public class ElevatorDoorMover : MonoBehaviour
     {
         if (doorOperateOpen.IsPressed())
         {
-            OpenLeftDoor();
-            OpenRightDoor();
+            currentTargetLeft = leftDoorOpenLocal;
+            currentTargetRight = rightDoorOpenLocal;
+
+            isMovingLeft = true;
+            isMovingRight = true;
         }
         else if (doorOperateClosed.IsPressed())
         {
-            CloseLeftDoor();
-            CloseRightDoor();
-        }
-    }
+            currentTargetLeft = leftDoorCloseLocal;
+            currentTargetRight = rightDoorCloseLocal;
 
-    void OpenLeftDoor()
-    {
-        if (leftDoor != null)
-        {
-            leftDoor.transform.localPosition = Vector3.MoveTowards(leftDoor.transform.localPosition, leftDoorOpenLocal, doorSpeed * Time.deltaTime);
+            isMovingLeft = true;
+            isMovingRight = true;
         }
-    }
 
-    void OpenRightDoor()
-    {
-        if (rightDoor != null)
+        if (isMovingLeft)
         {
-            rightDoor.transform.localPosition = Vector3.MoveTowards(rightDoor.transform.localPosition, rightDoorOpenLocal, doorSpeed * Time.deltaTime);
+            leftDoor.transform.localPosition = Vector3.MoveTowards(leftDoor.transform.localPosition, currentTargetLeft, doorSpeed * Time.deltaTime);
+
+            if ((leftDoor.transform.localPosition - currentTargetLeft).sqrMagnitude <= closeThreshold * closeThreshold)
+            {
+                isMovingLeft = false;
+                currentTargetLeft = leftDoor.transform.localPosition;
+            }
         }
-    }
 
-    void CloseLeftDoor()
-    {
-        if (leftDoor != null)
+        if (isMovingRight)
         {
-            leftDoor.transform.localPosition = Vector3.MoveTowards(leftDoor.transform.localPosition, leftDoorCloseLocal, doorSpeed * Time.deltaTime);
-        }
-    }
-
-    void CloseRightDoor()
-    {
-        if (rightDoor != null)
-        {
-            rightDoor.transform.localPosition = Vector3.MoveTowards(rightDoor.transform.localPosition, rightDoorCloseLocal, doorSpeed * Time.deltaTime);
+            rightDoor.transform.localPosition = Vector3.MoveTowards(rightDoor.transform.localPosition, currentTargetRight, doorSpeed * Time.deltaTime);
+            if ((rightDoor.transform.localPosition - currentTargetRight).sqrMagnitude <= openThreshold * openThreshold)
+            {
+                isMovingRight = false;
+                currentTargetRight = rightDoor.transform.localPosition;
+            }
         }
     }
 }
