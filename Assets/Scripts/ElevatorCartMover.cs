@@ -15,7 +15,6 @@ public class ElevatorCartMover : MonoBehaviour
     {
         rbElevatorCart = elevatorCart.GetComponent<Rigidbody>();
         cartOperate.Enable();  
-
     }
 
     
