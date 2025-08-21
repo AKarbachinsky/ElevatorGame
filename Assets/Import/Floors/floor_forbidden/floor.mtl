@@ -1,0 +1,17 @@
+newmtl Mat_Rune
+Kd 0.35 0.15 0.18
+Ke 0.05 0.01 0.02
+map_Kd rune.png
+
+newmtl Mat_Dark
+Kd 0.2 0.17 0.2
+map_Kd dark.png
+
+newmtl Mat_Ceiling
+Kd 0.2 0.17 0.2
+map_Kd ceiling.png
+
+newmtl Mat_Metal
+Kd 0.6 0.6 0.6
+map_Kd metal.png
+

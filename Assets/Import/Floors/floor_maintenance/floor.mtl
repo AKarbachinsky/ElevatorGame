@@ -1,0 +1,16 @@
+newmtl Mat_FloorHazard
+Kd 0.5 0.5 0.45
+map_Kd floor_hazard.png
+
+newmtl Mat_Cinder
+Kd 0.5 0.6 0.6
+map_Kd wall_cinder.png
+
+newmtl Mat_Ceiling
+Kd 0.7 0.7 0.7
+map_Kd ceiling.png
+
+newmtl Mat_Metal
+Kd 0.6 0.6 0.6
+map_Kd metal.png
+
