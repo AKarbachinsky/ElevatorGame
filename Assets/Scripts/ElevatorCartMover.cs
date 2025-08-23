@@ -5,6 +5,20 @@ public class ElevatorCartMover : MonoBehaviour
 {
     [SerializeField] GameObject elevatorCart;
 
+    [SerializeField] GameObject firstFloorButton;
+    [SerializeField] GameObject secondFloorButton;
+    [SerializeField] GameObject thirdFloorButton;
+    [SerializeField] GameObject fourthFloorButton;
+
+    [SerializeField] GameObject upArrow;
+    [SerializeField] GameObject downArrow;
+
+    [SerializeField] Material floorSelectedMaterial;
+    [SerializeField] Material floorUnselectedMaterial;
+
+    [SerializeField] Material arrowActiveMaterial;
+    [SerializeField] Material arrowInactiveMaterial;
+
     [SerializeField] InputAction cartOperate;
 
     [SerializeField] InputAction operateToFirstFloor;
@@ -39,28 +53,47 @@ public class ElevatorCartMover : MonoBehaviour
     void Update()
     {
         ProcessMovement();
+        ProcessArrows();
+
+
     }
 
     void ProcessMovement()
     {
         if (operateToFirstFloor.WasPressedThisFrame()) 
         { 
-            currentTarget = firstFloor; 
+            currentTarget = firstFloor;
+            firstFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+            secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             isMoving = true; 
         }
         else if (operateToSecondFloor.WasPressedThisFrame()) 
         { 
             currentTarget = secondFloor; 
+            secondFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+            firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             isMoving = true; 
         }
         else if (operateToThirdFloor.WasPressedThisFrame()) 
         { 
             currentTarget = thirdFloor; 
+            thirdFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+            secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             isMoving = true; 
         }
         else if (operateToFourthFloor.WasPressedThisFrame()) 
         { 
             currentTarget = fourthFloor; 
+            fourthFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+            thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+            firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             isMoving = true; 
         }
 
@@ -72,15 +105,36 @@ public class ElevatorCartMover : MonoBehaviour
             {
                 transform.position = currentTarget;
                 isMoving = false;
+
+                firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             }
         }
     }
+    void ProcessArrows()
+    {
+        if (isMoving)
+        {
+            if (transform.position.y < currentTarget.y)
+            {
+                upArrow.GetComponent<Renderer>().material = arrowActiveMaterial;
+                downArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
+            }
+            else if (transform.position.y > currentTarget.y)
+            {
+                upArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
+                downArrow.GetComponent<Renderer>().material = arrowActiveMaterial;
+            }
+        }
+        else
+        {
+            upArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
+            downArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
+        }
+    }
 }
-
-
-
-
-
 
 //float cartInput = cartOperate.ReadValue<float>();
 //rbElevatorCart.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;

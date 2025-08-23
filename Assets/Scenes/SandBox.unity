@@ -694,7 +694,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 6c31b0653547f9342adf48edb9de6693, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -904,10 +904,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3916035008883844134, guid: ac8250061ac80b446add36e91d663c0b, type: 3}
-      propertyPath: doorSpeed
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5913413736893251411, guid: ac8250061ac80b446add36e91d663c0b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -947,10 +943,6 @@ PrefabInstance:
     - target: {fileID: 5913413736893251411, guid: ac8250061ac80b446add36e91d663c0b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6212712873246379177, guid: ac8250061ac80b446add36e91d663c0b, type: 3}
-      propertyPath: doorSpeed
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7679667125354468601, guid: ac8250061ac80b446add36e91d663c0b, type: 3}
       propertyPath: m_Name
