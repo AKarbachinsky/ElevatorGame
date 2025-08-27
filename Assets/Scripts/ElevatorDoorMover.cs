@@ -45,6 +45,17 @@ public class ElevatorDoorMover : MonoBehaviour
         ProcessDoorOperations();
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "Enemy":
+                Debug.Log("I hit enemy");
+                break;
+        }
+    }
+
+
     void ProcessDoorOperations()
     {
         if (doorOperateOpen.IsPressed())

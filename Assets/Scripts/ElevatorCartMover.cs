@@ -30,14 +30,28 @@ public class ElevatorCartMover : MonoBehaviour
 
     [SerializeField] float arriveThreshold = 0.01f;
 
-    Vector3 firstFloor = new Vector3(0, 0, 0);
-    Vector3 secondFloor = new Vector3(0, 10, 0);
-    Vector3 thirdFloor = new Vector3(0, 20, 0);
-    Vector3 fourthFloor = new Vector3(0, 30, 0);
+    public Vector3 firstFloor = new Vector3(0, 0, 0);
+    public Vector3 secondFloor = new Vector3(0, 10, 0);
+    public Vector3 thirdFloor = new Vector3(0, 20, 0);
+    public Vector3 fourthFloor = new Vector3(0, 30, 0);
 
-    Vector3 currentTarget;
+    public Vector3 currentTarget;
 
-    bool isMoving = false;
+    public bool isMoving = false;
+    public bool completedDestination = false;
+
+    public enum Floor
+    { 
+        None, 
+        First, 
+        Second, 
+        Third, 
+        Fourth 
+    }
+
+    public Floor arrivedFloor = Floor.None;
+
+
 
     void Start()
     {
@@ -67,7 +81,8 @@ public class ElevatorCartMover : MonoBehaviour
             secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            isMoving = true; 
+            isMoving = true;
+            completedDestination = false;
         }
         else if (operateToSecondFloor.WasPressedThisFrame()) 
         { 
@@ -76,7 +91,8 @@ public class ElevatorCartMover : MonoBehaviour
             firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            isMoving = true; 
+            isMoving = true;
+            completedDestination = false;
         }
         else if (operateToThirdFloor.WasPressedThisFrame()) 
         { 
@@ -85,7 +101,8 @@ public class ElevatorCartMover : MonoBehaviour
             secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            isMoving = true; 
+            isMoving = true;
+            completedDestination = false;
         }
         else if (operateToFourthFloor.WasPressedThisFrame()) 
         { 
@@ -95,6 +112,7 @@ public class ElevatorCartMover : MonoBehaviour
             secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
             isMoving = true; 
+            completedDestination = false;
         }
 
         if (isMoving)
@@ -105,14 +123,43 @@ public class ElevatorCartMover : MonoBehaviour
             {
                 transform.position = currentTarget;
                 isMoving = false;
-
+                
                 firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
                 secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
                 thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
                 fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+
+                ArrivedAtDestination(currentTarget);
             }
         }
     }
+
+    void ArrivedAtDestination(Vector3 target)
+    {
+        if (target == firstFloor)
+        {
+            arrivedFloor = Floor.First;
+        }
+        else if (target == secondFloor)
+        {
+            arrivedFloor = Floor.Second;
+        }
+        else if (target == thirdFloor)
+        {
+            arrivedFloor = Floor.Third;
+        }
+        else if (target == fourthFloor)
+        {
+            arrivedFloor = Floor.Fourth;
+        }
+        else
+        {
+            arrivedFloor = Floor.None;
+        } 
+
+        completedDestination = true;
+    }
+
     void ProcessArrows()
     {
         if (isMoving)

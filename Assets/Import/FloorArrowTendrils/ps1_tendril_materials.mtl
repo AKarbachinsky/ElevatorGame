@@ -1,8 +1,0 @@
-newmtl arrow_body
-map_Kd arrow_body_ps1.png
-newmtl arrow_detail
-map_Kd arrow_detail_ps1.png
-newmtl arrow_glow
-# assign glow ON/OFF maps manually
-newmtl arrow_tendril
-map_Kd arrow_tendril_ps1.png
