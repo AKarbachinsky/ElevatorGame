@@ -1,8 +1,28 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static ElevatorCartMover;
 
 public class ElevatorDoorMover : MonoBehaviour
 {
+    public ElevatorCartMover elevatorCartMover;
+
+    enum DoorState
+    {
+        ForcedOpen,
+        ForcedClosed,
+        CombatPhase
+    }
+
+    public enum DoorFlags
+    {
+        None,
+        Opened,
+        Closed
+    }
+
+    DoorState currentDoorState = DoorState.ForcedOpen;
+    public DoorFlags currentDoorFlag = DoorFlags.None;
+
     [SerializeField] GameObject leftDoor;
     [SerializeField] GameObject rightDoor;
 
@@ -25,8 +45,13 @@ public class ElevatorDoorMover : MonoBehaviour
     bool isMovingLeft = false;
     bool isMovingRight = false;
 
+    
+
     void Start()
     {
+        currentDoorState = DoorState.ForcedOpen;
+        currentDoorFlag = DoorFlags.None;
+
         doorOperateOpen.Enable();
         doorOperateClosed.Enable();
 
@@ -42,19 +67,103 @@ public class ElevatorDoorMover : MonoBehaviour
 
     void Update()
     {
-        ProcessDoorOperations();
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        switch (other.gameObject.tag)
+        switch (currentDoorState)
         {
-            case "Enemy":
-                Debug.Log("I hit enemy");
+            case DoorState.ForcedOpen:
+                ForceOpenDoors();
+                doorOperateOpen.Disable();
+                doorOperateClosed.Disable();
+
+                if (elevatorCartMover.currentState == ElevatorState.Moving)
+                {
+                    currentDoorState = DoorState.ForcedClosed;
+                }
+                else if (elevatorCartMover.currentState == ElevatorState.CombatPhase)
+                {
+                    currentDoorState = DoorState.CombatPhase;
+                }
+
+                    break;
+            case DoorState.ForcedClosed:
+                ForceClosedDoors();
+
+                if (elevatorCartMover.currentState == ElevatorState.Arrived)
+                {
+                    currentDoorState = DoorState.ForcedOpen;
+                }
+
+                break;
+            case DoorState.CombatPhase:
+                doorOperateOpen.Enable();
+                doorOperateClosed.Enable();
+                ProcessDoorOperations();
                 break;
         }
     }
 
+    private void ForceClosedDoors()
+    {
+        currentTargetLeft = leftDoorCloseLocal;
+        currentTargetRight = rightDoorCloseLocal;
+
+        isMovingLeft = true;
+        isMovingRight = true;
+
+        if (isMovingLeft)
+        {
+            leftDoor.transform.localPosition = Vector3.MoveTowards(leftDoor.transform.localPosition, currentTargetLeft, doorSpeed * Time.deltaTime);
+
+            if ((leftDoor.transform.localPosition - currentTargetLeft).sqrMagnitude <= closeThreshold * closeThreshold)
+            {
+                isMovingLeft = false;
+                currentTargetLeft = leftDoor.transform.localPosition;
+                currentDoorFlag = DoorFlags.Closed;
+            }
+        }
+
+        if (isMovingRight)
+        {
+            rightDoor.transform.localPosition = Vector3.MoveTowards(rightDoor.transform.localPosition, currentTargetRight, doorSpeed * Time.deltaTime);
+            if ((rightDoor.transform.localPosition - currentTargetRight).sqrMagnitude <= openThreshold * openThreshold)
+            {
+                isMovingRight = false;
+                currentTargetRight = rightDoor.transform.localPosition;
+                currentDoorFlag = DoorFlags.Closed;
+            }
+        }
+    }
+
+    private void ForceOpenDoors()
+    {
+        currentTargetLeft = leftDoorOpenLocal;
+        currentTargetRight = rightDoorOpenLocal;
+
+        isMovingLeft = true;
+        isMovingRight = true;
+
+        if (isMovingLeft)
+        {
+            leftDoor.transform.localPosition = Vector3.MoveTowards(leftDoor.transform.localPosition, currentTargetLeft, doorSpeed * Time.deltaTime);
+
+            if ((leftDoor.transform.localPosition - currentTargetLeft).sqrMagnitude <= closeThreshold * closeThreshold)
+            {
+                isMovingLeft = false;
+                currentTargetLeft = leftDoor.transform.localPosition;
+                currentDoorFlag = DoorFlags.Opened;
+            }
+        }
+
+        if (isMovingRight)
+        {
+            rightDoor.transform.localPosition = Vector3.MoveTowards(rightDoor.transform.localPosition, currentTargetRight, doorSpeed * Time.deltaTime);
+            if ((rightDoor.transform.localPosition - currentTargetRight).sqrMagnitude <= openThreshold * openThreshold)
+            {
+                isMovingRight = false;
+                currentTargetRight = rightDoor.transform.localPosition;
+                currentDoorFlag = DoorFlags.Opened;
+            }
+        }
+    }
 
     void ProcessDoorOperations()
     {
@@ -94,6 +203,16 @@ public class ElevatorDoorMover : MonoBehaviour
                 isMovingRight = false;
                 currentTargetRight = rightDoor.transform.localPosition;
             }
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "Enemy":
+                Debug.Log("I hit enemy");
+                break;
         }
     }
 }

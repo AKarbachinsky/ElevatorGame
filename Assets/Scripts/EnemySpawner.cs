@@ -31,7 +31,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void ProcessEnemySpawning()
     {
-        if (elevatorCartMover.completedDestination && !enemySpawned)
+        if (elevatorCartMover.currentState == ElevatorState.CombatPhase && !enemySpawned)
         {
             Vector3 spawnPos = firstFloorEnemySpawn; // default
 
@@ -56,7 +56,7 @@ public class EnemySpawner : MonoBehaviour
             }
         }
 
-        if (!elevatorCartMover.completedDestination && enemySpawned)
+        if (elevatorCartMover.currentState != ElevatorState.CombatPhase && enemySpawned)
         {
             enemySpawned = false;
         }
@@ -68,7 +68,6 @@ public class EnemySpawner : MonoBehaviour
         if (enemy == null) { Debug.LogError("SpawnEnemy: enemy prefab is NULL"); return; }
 
         var go = Instantiate(enemy, spawnPosition.position, Quaternion.identity);
-        // go.GetComponent<EnemyMover>()?.Activate(); // if you added Activate()
         enemySpawned = true;
     }
 }

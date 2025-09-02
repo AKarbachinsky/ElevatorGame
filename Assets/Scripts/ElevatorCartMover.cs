@@ -1,8 +1,48 @@
+using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static ElevatorDoorMover;
 
 public class ElevatorCartMover : MonoBehaviour
 {
+    #region Enums
+    public enum Floor
+    {
+        None,
+        First,
+        Second,
+        Third,
+        Fourth
+    }
+
+    enum FloorSelected
+    {
+        None = 0,
+        FirstFloorSelected,
+        SecondFloorSelected,
+        ThirdFloorSelected,
+        FourthFloorSelected
+    }
+
+    public enum ElevatorState
+    {
+        None = 0,
+        Idle,
+        Moving,
+        Arrived,
+        CombatPhase,
+        ClosingDoors
+    }
+
+    #endregion
+
+    #region Fields
+
+    public ElevatorDoorMover elevatorDoorMover;
+
+    public ElevatorState currentState = ElevatorState.Idle;
+    FloorSelected selectedFloor = FloorSelected.None;
+
     [SerializeField] GameObject elevatorCart;
 
     [SerializeField] GameObject firstFloorButton;
@@ -30,100 +70,147 @@ public class ElevatorCartMover : MonoBehaviour
 
     [SerializeField] float arriveThreshold = 0.01f;
 
-    public Vector3 firstFloor = new Vector3(0, 0, 0);
-    public Vector3 secondFloor = new Vector3(0, 10, 0);
-    public Vector3 thirdFloor = new Vector3(0, 20, 0);
-    public Vector3 fourthFloor = new Vector3(0, 30, 0);
+    public Vector3 firstFloorLocation = new Vector3(0, 0, 0);
+    public Vector3 secondFloorLocation = new Vector3(0, 10, 0);
+    public Vector3 thirdFloorLocation = new Vector3(0, 20, 0);
+    public Vector3 fourthFloorLocation = new Vector3(0, 30, 0);
 
     public Vector3 currentTarget;
+
+    public Floor arrivedFloor = Floor.None;
 
     public bool isMoving = false;
     public bool completedDestination = false;
 
-    public enum Floor
-    { 
-        None, 
-        First, 
-        Second, 
-        Third, 
-        Fourth 
-    }
-
-    public Floor arrivedFloor = Floor.None;
-
-
+    #endregion
 
     void Start()
+    {
+        EnableInputAction();
+        currentTarget = transform.position;
+        currentState = ElevatorState.Idle;
+    }
+
+    private void EnableInputAction()
     {
         cartOperate.Enable();
         operateToFirstFloor.Enable();
         operateToSecondFloor.Enable();
         operateToThirdFloor.Enable();
         operateToFourthFloor.Enable();
-
-        currentTarget = transform.position;
     }
-    
+
     void Update()
     {
-        ProcessMovement();
-        ProcessArrows();
-
-
+        switch (currentState)
+        {
+            case ElevatorState.None:
+                Debug.Log("NO STATE");
+                break;
+            case ElevatorState.Idle:
+                WaitForInput();
+                break;
+            case ElevatorState.Moving:
+                ProcessMovement();
+                DisableInputAction();
+                break;
+            case ElevatorState.Arrived:
+                StopProcessingArrows();
+                ForceOpenDoors();
+                if (elevatorDoorMover.currentDoorFlag == DoorFlags.Opened)
+                {
+                    currentState = ElevatorState.CombatPhase;
+                }
+                break;
+            case ElevatorState.CombatPhase:
+                // do something
+                break;
+            case ElevatorState.ClosingDoors:
+                //dosomething
+                break;
+        }
+    }
+    void WaitForInput()
+    {
+        if (operateToFirstFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.FirstFloorSelected;
+            currentState = ElevatorState.Moving;
+        }
+        else if (operateToSecondFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.SecondFloorSelected;
+            currentState = ElevatorState.Moving;
+        }
+        else if (operateToThirdFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.ThirdFloorSelected;
+            currentState = ElevatorState.Moving;
+        }
+        else if (operateToFourthFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.FourthFloorSelected;
+            currentState = ElevatorState.Moving;
+        }
     }
 
     void ProcessMovement()
     {
-        if (operateToFirstFloor.WasPressedThisFrame()) 
-        { 
-            currentTarget = firstFloor;
-            firstFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-            secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            isMoving = true;
-            completedDestination = false;
-        }
-        else if (operateToSecondFloor.WasPressedThisFrame()) 
-        { 
-            currentTarget = secondFloor; 
-            secondFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-            firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            isMoving = true;
-            completedDestination = false;
-        }
-        else if (operateToThirdFloor.WasPressedThisFrame()) 
-        { 
-            currentTarget = thirdFloor; 
-            thirdFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-            secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            isMoving = true;
-            completedDestination = false;
-        }
-        else if (operateToFourthFloor.WasPressedThisFrame()) 
-        { 
-            currentTarget = fourthFloor; 
-            fourthFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-            thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-            isMoving = true; 
-            completedDestination = false;
+        switch (selectedFloor)
+        {
+            case FloorSelected.None:
+                //Do nothing
+                break;
+            case FloorSelected.FirstFloorSelected:
+                currentTarget = firstFloorLocation;
+                firstFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+                secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                MoveCartTowardsTarget();
+                break;
+            case FloorSelected.SecondFloorSelected:
+                currentTarget = secondFloorLocation;
+                secondFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+                firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                MoveCartTowardsTarget();
+                break;
+            case FloorSelected.ThirdFloorSelected:
+                currentTarget = thirdFloorLocation;
+                thirdFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+                secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                MoveCartTowardsTarget();
+                break;
+            case FloorSelected.FourthFloorSelected:
+                currentTarget = fourthFloorLocation;
+                fourthFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+                thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+                MoveCartTowardsTarget();
+                break;
         }
 
+        isMoving = true;
+        completedDestination = false;
+    }
+
+    private void MoveCartTowardsTarget()
+    {
         if (isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, currentTarget, cartSpeed * Time.deltaTime);
+            ProcessArrows();
 
             if ((transform.position - currentTarget).sqrMagnitude <= arriveThreshold * arriveThreshold)
             {
                 transform.position = currentTarget;
                 isMoving = false;
-                
+
                 firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
                 secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
                 thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
@@ -136,19 +223,19 @@ public class ElevatorCartMover : MonoBehaviour
 
     void ArrivedAtDestination(Vector3 target)
     {
-        if (target == firstFloor)
+        if (target == firstFloorLocation)
         {
             arrivedFloor = Floor.First;
         }
-        else if (target == secondFloor)
+        else if (target == secondFloorLocation)
         {
             arrivedFloor = Floor.Second;
         }
-        else if (target == thirdFloor)
+        else if (target == thirdFloorLocation)
         {
             arrivedFloor = Floor.Third;
         }
-        else if (target == fourthFloor)
+        else if (target == fourthFloorLocation)
         {
             arrivedFloor = Floor.Fourth;
         }
@@ -158,6 +245,7 @@ public class ElevatorCartMover : MonoBehaviour
         } 
 
         completedDestination = true;
+        currentState = ElevatorState.Arrived;
     }
 
     void ProcessArrows()
@@ -181,6 +269,38 @@ public class ElevatorCartMover : MonoBehaviour
             downArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
         }
     }
+
+    void DisableInputAction()
+    {
+        cartOperate.Disable();
+        operateToFirstFloor.Disable();
+        operateToSecondFloor.Disable();
+        operateToThirdFloor.Disable();
+        operateToFourthFloor.Disable();
+    }
+
+    void StopProcessingArrows()
+    {
+        upArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
+        downArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
+    }
+
+    void ForceOpenDoors()
+    {
+        // Placeholder for door opening logic
+        // After doors are opened, transition to CombatPhase or ClosingDoors as needed
+        Debug.Log("Arrived at " + arrivedFloor.ToString() + ". Doors should open now.");
+    }
+
+    #region Debug
+
+    void OnGUI()
+    {
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
+        GUI.Label(new Rect(screenPos.x, Screen.height - screenPos.y, 200, 20), currentState.ToString());
+    }
+
+    #endregion
 }
 
 //float cartInput = cartOperate.ReadValue<float>();
