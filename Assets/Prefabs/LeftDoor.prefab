@@ -184,41 +184,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e0ca914611b1c74c849d3567834f70c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  elevatorCartMover: {fileID: 0}
+  currentDoorFlag: 0
   leftDoor: {fileID: 6020806422790465829}
   rightDoor: {fileID: 0}
-  doorOperate:
-    m_Name: Door Operate
+  doorOperateOpen:
+    m_Name: Door Operate Open
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 0c879dfd-a57f-4423-80fd-73f762d67ab8
+    m_Id: c5c4f2fc-3210-4be8-a379-1bc17a8f3f21
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 1D Axis
-      m_Id: 09916b5e-dec2-429f-aa19-7bc6f60ce30e
-      m_Path: 1DAxis
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Door Operate
-      m_Flags: 4
-    - m_Name: negative
-      m_Id: 6d0df0c2-52b5-4b43-b25b-45364855cad8
-      m_Path: <Keyboard>/a
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Door Operate
-      m_Flags: 8
-    - m_Name: positive
-      m_Id: 943ced52-8491-4d74-86a6-92600843c580
-      m_Path: <Keyboard>/d
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Door Operate
-      m_Flags: 8
+    m_SingletonActionBindings: []
     m_Flags: 0
+  doorOperateClosed:
+    m_Name: Door Operate Closed
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 6a15d555-3ffb-4fb6-be71-02ee59cb15f2
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  doorSpeed: 1
+  closeThreshold: 0.01
+  openThreshold: 0.01
 --- !u!65 &1859729719533664173
 BoxCollider:
   m_ObjectHideFlags: 0

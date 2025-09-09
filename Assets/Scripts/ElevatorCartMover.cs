@@ -1,6 +1,7 @@
 using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 using static ElevatorDoorMover;
 
 public class ElevatorCartMover : MonoBehaviour
@@ -31,7 +32,6 @@ public class ElevatorCartMover : MonoBehaviour
         Moving,
         Arrived,
         CombatPhase,
-        ClosingDoors
     }
 
     #endregion
@@ -84,6 +84,7 @@ public class ElevatorCartMover : MonoBehaviour
 
     #endregion
 
+
     void Start()
     {
         EnableInputAction();
@@ -108,7 +109,9 @@ public class ElevatorCartMover : MonoBehaviour
                 Debug.Log("NO STATE");
                 break;
             case ElevatorState.Idle:
+                EnableInputAction();
                 WaitForInput();
+                elevatorDoorMover.isEnemyHit = false;
                 break;
             case ElevatorState.Moving:
                 ProcessMovement();
@@ -123,13 +126,26 @@ public class ElevatorCartMover : MonoBehaviour
                 }
                 break;
             case ElevatorState.CombatPhase:
-                // do something
-                break;
-            case ElevatorState.ClosingDoors:
-                //dosomething
+                if (elevatorDoorMover.isEnemyHit == true)
+                {
+                    StartCoroutine(StartIdleState(3f));
+                }
                 break;
         }
     }
+
+
+    private IEnumerator StartIdleState(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        currentState = ElevatorState.Idle;
+    }
+
+    private void StartIdleState()
+    {
+        currentState = ElevatorState.Idle;
+    }
+
     void WaitForInput()
     {
         if (operateToFirstFloor.WasPressedThisFrame())
@@ -291,6 +307,8 @@ public class ElevatorCartMover : MonoBehaviour
         // After doors are opened, transition to CombatPhase or ClosingDoors as needed
         Debug.Log("Arrived at " + arrivedFloor.ToString() + ". Doors should open now.");
     }
+
+
 
     #region Debug
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 using static ElevatorCartMover;
 
 public class ElevatorDoorMover : MonoBehaviour
@@ -45,7 +46,7 @@ public class ElevatorDoorMover : MonoBehaviour
     bool isMovingLeft = false;
     bool isMovingRight = false;
 
-    
+    public bool isEnemyHit = false;     
 
     void Start()
     {
@@ -63,6 +64,8 @@ public class ElevatorDoorMover : MonoBehaviour
 
         currentTargetLeft = transform.position;
         currentTargetRight = transform.position;
+
+        isEnemyHit = false;  
     }
 
     void Update()
@@ -70,6 +73,7 @@ public class ElevatorDoorMover : MonoBehaviour
         switch (currentDoorState)
         {
             case DoorState.ForcedOpen:
+                isEnemyHit = false;
                 ForceOpenDoors();
                 doorOperateOpen.Disable();
                 doorOperateClosed.Disable();
@@ -97,8 +101,19 @@ public class ElevatorDoorMover : MonoBehaviour
                 doorOperateOpen.Enable();
                 doorOperateClosed.Enable();
                 ProcessDoorOperations();
+
+                if (isEnemyHit)
+                {
+                    StartCoroutine(StartForceOpenState(3f));
+                } 
                 break;
         }
+    }
+
+    private IEnumerator StartForceOpenState(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        currentDoorState = DoorState.ForcedOpen;
     }
 
     private void ForceClosedDoors()
@@ -211,7 +226,7 @@ public class ElevatorDoorMover : MonoBehaviour
         switch (other.gameObject.tag)
         {
             case "Enemy":
-                Debug.Log("I hit enemy");
+                isEnemyHit = true;
                 break;
         }
     }
