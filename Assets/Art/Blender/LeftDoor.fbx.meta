@@ -31,7 +31,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Armature_LeftDoor|LeftDoor_Armature_Heavy_Attack
+      name: LeftDoor_Armature_Heavy_Attack
       takeName: Armature_LeftDoor|LeftDoor_Armature_Heavy_Attack
       internalID: -8731220012267166545
       firstFrame: 0
@@ -60,7 +60,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature_LeftDoor|LeftDoor_Armature_Idle
+      name: LeftDoor_Armature_Idle
       takeName: Armature_LeftDoor|LeftDoor_Armature_Idle
       internalID: 1385567483268195798
       firstFrame: 0
@@ -89,7 +89,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature_LeftDoor|LeftDoor_Armature_Med_Attack
+      name: LeftDoor_Armature_Med_Attack
       takeName: Armature_LeftDoor|LeftDoor_Armature_Med_Attack
       internalID: -5485888641293425088
       firstFrame: 0
@@ -118,7 +118,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature_LeftDoor|LeftDoor_Armature_Moving
+      name: LeftDoor_Armature_Moving
       takeName: Armature_LeftDoor|LeftDoor_Armature_Moving
       internalID: 306229140223212493
       firstFrame: 0
@@ -147,7 +147,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature_LeftDoor|LeftDoor_Armature_Open_Close_SlowAttack
+      name: LeftDoor_Armature_Open
       takeName: Armature_LeftDoor|LeftDoor_Armature_Open_Close_SlowAttack
       internalID: -8596539677855062793
       firstFrame: 0
@@ -176,67 +176,9 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature_LeftDoor|LeftDoor_Armature_Open_Door
-      takeName: Armature_LeftDoor|LeftDoor_Armature_Open_Door
-      internalID: 7654317210669581693
-      firstFrame: 0
-      lastFrame: 120
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: Armature_LeftDoor|LeftDoor_Armature_Slow_Attack
-      takeName: Armature_LeftDoor|LeftDoor_Armature_Slow_Attack
-      internalID: 6813461418446619911
-      firstFrame: 0
-      lastFrame: 120
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: Armature_LeftDoor|RightDoor_Armature_Open_Close_SlowAttack
-      takeName: Armature_LeftDoor|RightDoor_Armature_Open_Close_SlowAttack
-      internalID: -7521911112384337946
+      name: LeftDoor_Armature_Close
+      takeName: Armature_LeftDoor|LeftDoor_Armature_Open_Close_SlowAttack
+      internalID: 2091430466434629229
       firstFrame: 0
       lastFrame: 110
       wrapMode: 0
@@ -263,40 +205,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Armature_LeftDoor|RightDoor_Armature_Open_Door
-      takeName: Armature_LeftDoor|RightDoor_Armature_Open_Door
-      internalID: -3844114156620598145
+      name: LeftDoor_Armature_SlowAttack
+      takeName: Armature_LeftDoor|LeftDoor_Armature_Open_Close_SlowAttack
+      internalID: 4673660652703558251
       firstFrame: 0
-      lastFrame: 120
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: Armature_LeftDoor|RightDoor_Armature_Slow_Attack
-      takeName: Armature_LeftDoor|RightDoor_Armature_Slow_Attack
-      internalID: -4138312447813044916
-      firstFrame: 0
-      lastFrame: 120
+      lastFrame: 110
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

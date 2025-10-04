@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5435463475561664361}
   - component: {fileID: 2889398019085135426}
   - component: {fileID: 3472352061991655781}
+  - component: {fileID: 3053447264482186933}
   - component: {fileID: 8629608416936778982}
   - component: {fileID: 6691796923735182949}
   - component: {fileID: 4969560216561524952}
@@ -89,6 +90,33 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!54 &3053447264482186933
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3418976399669360968}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 3
 --- !u!136 &8629608416936778982
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -104,7 +132,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -137,7 +165,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b51404f0da4f8a642905559ffa6322df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  elevatorDoorMover: {fileID: 8860478649557298747, guid: 6dec60e43b9962a4ca226e3e54b9f973, type: 3}
 --- !u!1 &8153733647183471649
 GameObject:
   m_ObjectHideFlags: 0
