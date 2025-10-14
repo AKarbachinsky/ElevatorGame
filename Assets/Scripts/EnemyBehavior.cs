@@ -1,14 +1,19 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyBehavior : MonoBehaviour
 {
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        switch (other.gameObject.tag)
+        if (other.CompareTag("ElevatorDoor"))
         {
-            case "ElevatorDoor":
-                Destroy(gameObject);
-                break;
+            ElevatorSystemManager manager = FindFirstObjectByType<ElevatorSystemManager>();
+            
+            if (manager != null)
+            {
+                manager.OnEnemyHit();
+            }
+
+            Destroy(gameObject);
         }
     }
 }

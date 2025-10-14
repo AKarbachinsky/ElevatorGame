@@ -1,8 +1,8 @@
-using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using static ElevatorDoorMover;
+using static EnemyBehavior;
 
 public class ElevatorCartMover : MonoBehaviour
 {
@@ -29,6 +29,7 @@ public class ElevatorCartMover : MonoBehaviour
     {
         None = 0,
         Idle,
+        PreMovement,
         Moving,
         Arrived,
         CombatPhase,
@@ -39,9 +40,14 @@ public class ElevatorCartMover : MonoBehaviour
     #region Fields
 
     public ElevatorDoorMover elevatorDoorMover;
+    public EnemyBehavior enemyBehavior;
 
     public ElevatorState currentState = ElevatorState.Idle;
     FloorSelected selectedFloor = FloorSelected.None;
+
+    [SerializeField] string idleParam = "TrCartIdle";
+    [SerializeField] string movingParam = "TrCartMoving";
+    [SerializeField] string emptyParam = "TrCartEmpty";
 
     [SerializeField] GameObject elevatorCart;
 
@@ -55,12 +61,6 @@ public class ElevatorCartMover : MonoBehaviour
 
     [SerializeField] GameObject leftEyeBall;
     [SerializeField] GameObject rightEyeBall;
-
-    //[SerializeField] GameObject upArrow; //DELETE
-    //[SerializeField] GameObject downArrow; //DELETE
-
-    //[SerializeField] Material arrowActiveMaterial; //DELETE
-    //[SerializeField] Material arrowInactiveMaterial; //DELETE
 
     [SerializeField] InputAction cartOperate;
 
@@ -85,10 +85,12 @@ public class ElevatorCartMover : MonoBehaviour
     public Floor arrivedFloor = Floor.None;
 
     public bool isMoving = false;
-    public bool completedDestination = false;
+    public bool isArrived = false;
 
-    bool cartIdleIsPlaying = false;
+    public bool cartIdleIsPlaying = false;
     bool cartMovingIsPlaying = false;
+
+    public bool isMoveRequested = false;
 
     #endregion
 
@@ -96,7 +98,6 @@ public class ElevatorCartMover : MonoBehaviour
     {
         if (!animator) 
             animator = GetComponentInChildren<Animator>(true);
-        Debug.Log($"{name}: bound animator = {(animator ? animator.name : "NULL")}");
     }
 
     void Start()
@@ -115,6 +116,15 @@ public class ElevatorCartMover : MonoBehaviour
         operateToFourthFloor.Enable();
     }
 
+    void DisableInputAction()
+    {
+        cartOperate.Disable();
+        operateToFirstFloor.Disable();
+        operateToSecondFloor.Disable();
+        operateToThirdFloor.Disable();
+        operateToFourthFloor.Disable();
+    }
+
     void Update()
     {
         switch (currentState)
@@ -126,41 +136,84 @@ public class ElevatorCartMover : MonoBehaviour
                 EnableInputAction();
                 WaitForInput();
                 PlayIdleAnimation();
-                elevatorDoorMover.isEnemyHit = false;
                 break;
+
+            case ElevatorState.PreMovement:
+                // floor select button indicators
+                break;
+
             case ElevatorState.Moving:
-                ProcessMovement();
                 DisableInputAction();
+                if (!isArrived)
+                {
+                    ProcessMovement();
+                }
                 break;
             case ElevatorState.Arrived:
-                ResetPlayerEyeDirection(); //DELETE
-                ForceOpenDoors();
-                if (elevatorDoorMover.currentDoorFlag == DoorFlags.Opened)
-                {
-                    currentState = ElevatorState.CombatPhase;
-                }
+                PlayIdleAnimation();
+
+
+                ResetPlayerEyeDirection();
+                
                 break;
             case ElevatorState.CombatPhase:
-                if (elevatorDoorMover.isEnemyHit == true)
-                {
-                    StartCoroutine(StartIdleState(3f));
-                }
+
                 break;
+        }
+    }
+
+    #region Idle State Methods
+
+    void WaitForInput()
+    {
+        if (operateToFirstFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.FirstFloorSelected;
+            StopIdleAnimation();
+            FirstFloorEyeballRender();
+            isMoveRequested = true;
+        }
+        else if (operateToSecondFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.SecondFloorSelected;
+            StopIdleAnimation();
+            SecondFloorEyeballRender();
+            isMoveRequested = true;   
+        }
+        else if (operateToThirdFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.ThirdFloorSelected;
+            StopIdleAnimation();
+            ThirdFloorEyeballRender();
+            isMoveRequested = true;
+        }
+        else if (operateToFourthFloor.WasPressedThisFrame())
+        {
+            selectedFloor = FloorSelected.FourthFloorSelected;
+            StopIdleAnimation();
+            FourthFloorEyeballRender();
+            isMoveRequested = true;
         }
     }
 
     private void PlayIdleAnimation()
     {
-        if (elevatorDoorMover.currentDoorState == DoorState.Idle && !cartIdleIsPlaying)
+        if (!cartIdleIsPlaying)
         {
             if (animator != null)
             {
-                animator.ResetTrigger("TrCartEmpty");
-                animator.SetTrigger("TrCartIdle");
+                ResetAllAnimTriggers();
+                animator.SetTrigger(idleParam);
                 cartIdleIsPlaying = true;
                 Debug.Log("Playing Idle Animation");
             }
         }
+    }
+
+    private void StopIdleAnimation()
+    {
+        cartIdleIsPlaying = false;
+        ResetAllAnimTriggers();
     }
 
     private IEnumerator StartIdleState(float delay)
@@ -169,112 +222,88 @@ public class ElevatorCartMover : MonoBehaviour
         currentState = ElevatorState.Idle;
     }
 
-    private void StartIdleState()
-    {
-        currentState = ElevatorState.Idle;
-    }
+    #endregion
 
-    void WaitForInput()
-    {
-        if (operateToFirstFloor.WasPressedThisFrame())
-        {
-            selectedFloor = FloorSelected.FirstFloorSelected;
-            cartIdleIsPlaying = false;
-            animator.ResetTrigger("TrCartIdle");
-           
-            currentState = ElevatorState.Moving;
-        }
-        else if (operateToSecondFloor.WasPressedThisFrame())
-        {
-            selectedFloor = FloorSelected.SecondFloorSelected;
-            cartIdleIsPlaying = false;
-            animator.ResetTrigger("TrCartIdle");
-            
-            currentState = ElevatorState.Moving;
-        }
-        else if (operateToThirdFloor.WasPressedThisFrame())
-        {
-            selectedFloor = FloorSelected.ThirdFloorSelected;
-            cartIdleIsPlaying = false;
-            animator.ResetTrigger("TrCartIdle");
-            
-            currentState = ElevatorState.Moving;
-        }
-        else if (operateToFourthFloor.WasPressedThisFrame())
-        {
-            selectedFloor = FloorSelected.FourthFloorSelected;
-            cartIdleIsPlaying = false;
-            animator.ResetTrigger("TrCartIdle");
-         
-            currentState = ElevatorState.Moving;
-        }
-    }
+    #region Moving State Methods
 
     void ProcessMovement()
     {
-        if (elevatorDoorMover.currentDoorFlag == DoorFlags.Closed)
+        switch (selectedFloor)
         {
-            switch (selectedFloor)
-            {
-                case FloorSelected.None:
-                    //Do nothing
-                    break;
-                case FloorSelected.FirstFloorSelected:
-                    currentTarget = firstFloorLocation;
-                    firstFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-                    secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    MoveCartTowardsTarget();
-                    break;
-                case FloorSelected.SecondFloorSelected:
-                    currentTarget = secondFloorLocation;
-                    secondFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-                    firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    MoveCartTowardsTarget();
-                    break;
-                case FloorSelected.ThirdFloorSelected:
-                    currentTarget = thirdFloorLocation;
-                    thirdFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-                    secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    MoveCartTowardsTarget();
-                    break;
-                case FloorSelected.FourthFloorSelected:
-                    currentTarget = fourthFloorLocation;
-                    fourthFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
-                    thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
-                    MoveCartTowardsTarget();
-                    break;
-            }
-
-            isMoving = true;
-            completedDestination = false;
-
+            case FloorSelected.None:
+                Debug.Log("No floor selected.");
+                break;
+            case FloorSelected.FirstFloorSelected:
+                currentTarget = firstFloorLocation;
+                FirstFloorEyeballRender();
+                MoveCartTowardsTarget();
+                break;
+            case FloorSelected.SecondFloorSelected:
+                currentTarget = secondFloorLocation;
+                SecondFloorEyeballRender();
+                MoveCartTowardsTarget();
+                break;
+            case FloorSelected.ThirdFloorSelected:
+                currentTarget = thirdFloorLocation;
+                ThirdFloorEyeballRender();
+                MoveCartTowardsTarget();
+                break;
+            case FloorSelected.FourthFloorSelected:
+                currentTarget = fourthFloorLocation;
+                FourthFloorEyeballRender();
+                MoveCartTowardsTarget();
+                break;
         }
+
+        isMoving = true;
     }
+
+    private void FourthFloorEyeballRender()
+    {
+        fourthFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+        thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+    }
+
+    private void ThirdFloorEyeballRender()
+    {
+        thirdFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+        secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+    }
+
+    private void SecondFloorEyeballRender()
+    {
+        secondFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+        firstFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+    }
+
+    private void FirstFloorEyeballRender()
+    {
+        firstFloorButton.GetComponent<Renderer>().material = floorSelectedMaterial;
+        secondFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        thirdFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+        fourthFloorButton.GetComponent<Renderer>().material = floorUnselectedMaterial;
+    }
+
 
     private void MoveCartTowardsTarget()
     {
         if (isMoving)
         {
-            if (elevatorDoorMover.currentDoorFlag == DoorFlags.Closed)
+            if (!cartMovingIsPlaying)
             {
-                if (!cartMovingIsPlaying)
-                {
-                    animator.SetTrigger("TrCartMoving");
-                    animator.ResetTrigger("TrCartIdle");
-                    cartMovingIsPlaying = true;
-                }
+                ResetAllAnimTriggers();
+                animator.SetTrigger(movingParam);
+                cartMovingIsPlaying = true;
             }
-           
+
             transform.position = Vector3.MoveTowards(transform.position, currentTarget, cartSpeed * Time.deltaTime);
-            ProcessArrows(); //DELETE
+            ProcessEyeballFloorSelect(); 
 
             if ((transform.position - currentTarget).sqrMagnitude <= arriveThreshold * arriveThreshold)
             {
@@ -316,30 +345,32 @@ public class ElevatorCartMover : MonoBehaviour
 
         cartMovingIsPlaying = false;
         cartIdleIsPlaying = true;
-        animator.SetTrigger("TrCartIdle");
-        animator.ResetTrigger("TrCartMoving");
-        completedDestination = true;
-        currentState = ElevatorState.Arrived;
+        isArrived = true;
+        
     }
 
-    void ProcessArrows()
+   private void ResetAllAnimTriggers()
+    {
+        animator.ResetTrigger(idleParam);
+        animator.ResetTrigger(movingParam);
+        animator.ResetTrigger(emptyParam);
+
+        cartIdleIsPlaying = false;
+        cartMovingIsPlaying = false;
+    }
+
+    void ProcessEyeballFloorSelect()
     {
         if (isMoving)
         {
             if (transform.position.y < currentTarget.y)
             {
-                //upArrow.GetComponent<Renderer>().material = arrowActiveMaterial;
-                //downArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
-
                 // Make eyes look up
                 leftEyeBall.transform.rotation = Quaternion.Euler(-40, 0, 0);
                 rightEyeBall.transform.rotation = Quaternion.Euler(0, 0, 50);
             }
             else if (transform.position.y > currentTarget.y)
             {
-                //upArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
-                //downArrow.GetComponent<Renderer>().material = arrowActiveMaterial;
-
                 // Make eyes look down
                 leftEyeBall.transform.rotation = Quaternion.Euler(30, 0, 0);
                 rightEyeBall.transform.rotation = Quaternion.Euler(0, 0, -60);
@@ -347,23 +378,14 @@ public class ElevatorCartMover : MonoBehaviour
         }
         else
         {
-            //upArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
-            //downArrow.GetComponent<Renderer>().material = arrowInactiveMaterial;
-
             leftEyeBall.transform.rotation = Quaternion.Euler(0, 0, 0);
             rightEyeBall.transform.rotation = Quaternion.Euler(0, 0, 0);
-
         }
     }
 
-    void DisableInputAction()
-    {
-        cartOperate.Disable();
-        operateToFirstFloor.Disable();
-        operateToSecondFloor.Disable();
-        operateToThirdFloor.Disable();
-        operateToFourthFloor.Disable();
-    }
+    #endregion
+
+    #region Arrived State Methods
 
     void ResetPlayerEyeDirection()
     {
@@ -371,14 +393,44 @@ public class ElevatorCartMover : MonoBehaviour
         rightEyeBall.transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
-    void ForceOpenDoors()
+    #endregion
+
+    #region State Transition Handlers
+
+    public void GoIdle()
     {
-        // Placeholder for door opening logic
-        // After doors are opened, transition to CombatPhase or ClosingDoors as needed
-        Debug.Log("Arrived at " + arrivedFloor.ToString() + ". Doors should open now.");
+        currentState = ElevatorState.Idle;
     }
 
+    public void PrepareForMovement()
+    {
+        currentState = ElevatorState.PreMovement;
+    }
 
+    public void StartMoving()
+    {
+        currentState = ElevatorState.Moving;
+    }
+
+    public void HandleArrival()
+    {
+        currentState = ElevatorState.Arrived;
+        isMoveRequested = false;
+        isArrived = false;
+        ResetAllAnimTriggers();
+    }
+
+    public void EnterCombat()
+    {
+        currentState = ElevatorState.CombatPhase;
+    }
+
+    #endregion
+
+    public void OnEnemyHitElevator()
+    {
+        StartCoroutine(StartIdleState(3f));
+    }
 
     #region Debug
 
@@ -389,17 +441,3 @@ public class ElevatorCartMover : MonoBehaviour
 
     #endregion
 }
-
-//float cartInput = cartOperate.ReadValue<float>();
-//rbElevatorCart.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
-
-//if (cartInput < 0)
-//{
-//    rbElevatorCart.AddForce(Vector3.up * cartSpeed * Time.fixedDeltaTime);
-//    Debug.Log("Moving Elevator Cart Up");
-//}
-//else
-//{
-//    rbElevatorCart.AddForce(Vector3.down * cartSpeed * Time.fixedDeltaTime);
-//    Debug.Log("Moving Elevator Cart Down");
-//}
