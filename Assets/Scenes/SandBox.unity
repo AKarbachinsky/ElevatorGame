@@ -665,6 +665,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &954191811 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4620194781061334091, guid: 40f3869081fe3b0458b33ccfca3453e1, type: 3}
+  m_PrefabInstance: {fileID: 5720030307911109465}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &954191814
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954191811}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.6, y: 4.6, z: 0.15}
+  m_Center: {x: 3.3, y: 1, z: 0.99}
 --- !u!114 &1152634310 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7711066666782524911, guid: 40f3869081fe3b0458b33ccfca3453e1, type: 3}
@@ -789,6 +815,7 @@ MonoBehaviour:
   secondFloorSpawnPos: {fileID: 199287695}
   thirdFloorSpawnPos: {fileID: 1473443840}
   fourthFloorSpawnPos: {fileID: 209487560}
+  spawnRate: 10
   enemySpawned: 0
 --- !u!4 &1581654772
 Transform:
@@ -947,6 +974,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 14.4, y: -180, z: -0.001}
+--- !u!1 &1902431751 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4930461692322255101, guid: 40f3869081fe3b0458b33ccfca3453e1, type: 3}
+  m_PrefabInstance: {fileID: 5720030307911109465}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &1902431754
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902431751}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.6, y: 4.6, z: 0.15}
+  m_Center: {x: -3, y: 1, z: 0.99}
 --- !u!1001 &2075917122
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1059,7 +1112,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4930461692322255101, guid: 40f3869081fe3b0458b33ccfca3453e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1902431754}
+    - targetCorrespondingSourceObject: {fileID: 4620194781061334091, guid: 40f3869081fe3b0458b33ccfca3453e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 954191814}
   m_SourcePrefab: {fileID: 100100000, guid: 40f3869081fe3b0458b33ccfca3453e1, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

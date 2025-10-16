@@ -17,7 +17,10 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] Transform thirdFloorSpawnPos;
     [SerializeField] Transform fourthFloorSpawnPos;
 
+    [SerializeField] private float spawnRate = 5f;
+
     public bool enemySpawned = false;
+    private float spawnTimer = 999f;
 
     void Start()
     {
@@ -31,7 +34,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void ProcessEnemySpawning()
     {
-        if (elevatorCartMover.currentState == ElevatorState.CombatPhase && !enemySpawned)
+        if (elevatorCartMover.currentState == ElevatorState.CombatPhase)
         {
             Vector3 spawnPos = firstFloorEnemySpawn; // default
 
@@ -56,7 +59,7 @@ public class EnemySpawner : MonoBehaviour
             }
         }
 
-        if (elevatorCartMover.currentState != ElevatorState.CombatPhase && enemySpawned)
+        if (elevatorCartMover.currentState != ElevatorState.CombatPhase)
         {
             enemySpawned = false;
         }
@@ -64,10 +67,16 @@ public class EnemySpawner : MonoBehaviour
 
     private void SpawnEnemy(Transform spawnPosition)
     {
-        if (spawnPosition == null) { Debug.LogError("SpawnEnemy: spawnPosition is NULL"); return; }
-        if (enemy == null) { Debug.LogError("SpawnEnemy: enemy prefab is NULL"); return; }
+        // Update timer
+        spawnTimer += Time.deltaTime;
+
+        // Wait until enough time has passed
+        if (spawnTimer < spawnRate)
+            return;
+
+        // Reset timer
+        spawnTimer = 0f;
 
         var go = Instantiate(enemy, spawnPosition.position, Quaternion.identity);
-        enemySpawned = true;
     }
 }

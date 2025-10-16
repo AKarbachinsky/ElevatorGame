@@ -43,6 +43,11 @@ public class ElevatorSystemManager : MonoBehaviour
         {
             SetState(GameState.Combat);
         }
+
+        if (currentState == GameState.Combat && cart.isMoveRequested)
+        {
+            SetState(GameState.PreMovement);
+        }
     }
 
     public void SetState(GameState newState)

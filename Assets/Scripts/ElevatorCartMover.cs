@@ -157,7 +157,8 @@ public class ElevatorCartMover : MonoBehaviour
                 
                 break;
             case ElevatorState.CombatPhase:
-
+                EnableInputAction();
+                WaitForInput();
                 break;
         }
     }
