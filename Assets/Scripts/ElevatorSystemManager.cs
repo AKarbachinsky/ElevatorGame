@@ -11,6 +11,7 @@ public class ElevatorSystemManager : MonoBehaviour
         Idle,
         PreMovement,
         Moving,
+        FloorSelected,
         Arrived,
         Combat
     }
@@ -24,9 +25,20 @@ public class ElevatorSystemManager : MonoBehaviour
 
     private void Update()
     {
-        if (cart.isMoveRequested && doors.isIdlePlaying)
+        if (currentState == GameState.Idle)
         {
-            SetState(GameState.PreMovement);
+            if(doors.playerReadyToMove)
+            {
+                SetState(GameState.PreMovement);
+            }
+        }
+
+        if (currentState == GameState.PreMovement)
+        {
+            if (doors.isDoorsClosed)
+            {
+                SetState(GameState.Moving);
+            }
         }
 
         if (doors.isDoorsClosed && cart.isMoveRequested)
@@ -47,6 +59,11 @@ public class ElevatorSystemManager : MonoBehaviour
         if (currentState == GameState.Combat && cart.isMoveRequested)
         {
             SetState(GameState.PreMovement);
+        }
+
+        if (currentState == GameState.Moving && cart.isMoveRequested == true)
+        {
+            SetState(GameState.FloorSelected);
         }
     }
 
@@ -71,6 +88,11 @@ public class ElevatorSystemManager : MonoBehaviour
                 doors.StartMoving();
                 break;
 
+            case GameState.FloorSelected:
+                cart.HandleFloorSelected();
+                doors.HandleFloorSelected();
+                break;
+
             case GameState.Arrived:
                 cart.HandleArrival();
                 doors.HandleArrival();
@@ -85,8 +107,10 @@ public class ElevatorSystemManager : MonoBehaviour
 
     public void OnEnemyHit()
     {
-       
-        SetState(GameState.Idle);
+       if (doors.isDoorCompletedAttack)
+       {
+            SetState(GameState.Idle);
+       }
     }
 
     #region Debug

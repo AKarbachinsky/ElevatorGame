@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using static ElevatorCartMover;
 
-
 public class ElevatorDoorMover : MonoBehaviour
 {
     #region Enums
@@ -30,19 +29,13 @@ public class ElevatorDoorMover : MonoBehaviour
 
     #region Inspector: Config 
 
-    [SerializeField] private DoorSide side; // set Left on LeftDoor, Right on RightDoor
-
     [SerializeField] bool showDebug = true;
 
     [SerializeField] GameObject leftDoor;
     [SerializeField] GameObject rightDoor;
 
+    [SerializeField] InputAction doorClose;
     [SerializeField] InputAction doorOperateSlowAttack;
-
-    [SerializeField] float doorSpeed = 1f;
-
-    [SerializeField] float closeThreshold = 0.01f;
-    [SerializeField] float openThreshold = 0.01f;
 
     [SerializeField] Animator leftAnim;
     [SerializeField] Animator rightAnim;
@@ -53,6 +46,8 @@ public class ElevatorDoorMover : MonoBehaviour
     [SerializeField] string movingParam = "TrMoving";
     [SerializeField] string emptyParam = "TrEmpty";
     [SerializeField] string slowAttackParam = "TrSlowAttack";
+    [SerializeField] string mediumAttackParam = "TrMediumAttack";
+    [SerializeField] string fastAttackParam = "TrFastAttack";
 
     #endregion
 
@@ -60,29 +55,16 @@ public class ElevatorDoorMover : MonoBehaviour
 
     public DoorState currentDoorState = DoorState.ForcedOpen;
 
-    Vector3 leftDoorOpenLocal;
-    Vector3 rightDoorOpenLocal; 
-    Vector3 leftDoorCloseLocal; 
-    Vector3 rightDoorCloseLocal; 
-
-    Vector3 currentTargetLeft;
-    Vector3 currentTargetRight;
-
-    float doorOpenDistance = 2.05f;
-
-    bool isMovingLeft = false;
-    bool isMovingRight = false;
     public bool isDoorsMoving = false;
-
     public bool isIdlePlaying = false;
-    bool isPlayingMovingAnim = false;
-    bool isDoorCompletedAttack = false;
-    bool isDoorBegunAttack = false;
-
+    public bool isDoorCompletedAttack = false;
     public bool isReadyToMove = false;
-
     public bool isDoorOpen = false;
     public bool isDoorsClosed = false;
+    public bool playerReadyToMove = false;
+
+    bool isDoorBegunAttack = false;
+    bool isPlayingMovingAnim = false;
 
     private void Awake()
     {
@@ -93,6 +75,7 @@ public class ElevatorDoorMover : MonoBehaviour
     void Start()
     {
         doorOperateSlowAttack.Enable();
+        doorClose.Enable();
     }
 
     void Update()
@@ -107,7 +90,7 @@ public class ElevatorDoorMover : MonoBehaviour
                 {
                     currentDoorState = DoorState.Idle;
                 }
-                break;
+            break;
 
             case DoorState.Idle:
 
@@ -119,7 +102,15 @@ public class ElevatorDoorMover : MonoBehaviour
                 {
                     PlayIdleAnimation();
                 }
-                break;
+
+                if (isIdlePlaying)
+                {
+                    if(doorClose.WasPressedThisFrame())
+                    {
+                        playerReadyToMove = true;
+                    }
+                }
+            break;
 
             case DoorState.ForcedClosed:
                 ForceClosedDoors();
@@ -128,14 +119,14 @@ public class ElevatorDoorMover : MonoBehaviour
                 {
                     currentDoorState = DoorState.Moving;
                 }
-                break;
+            break;
 
             case DoorState.PreMovement:
                 if (!isDoorsClosed)
                 {
                     ForceClosedDoors();
                 }
-                break;
+            break;
 
             case DoorState.Moving:
                 if (!isPlayingMovingAnim)
@@ -144,7 +135,7 @@ public class ElevatorDoorMover : MonoBehaviour
                     ResetAllRightAnimTriggers();
                     PlayMovingAnimation();
                 }
-                break;
+            break;
 
                 case DoorState.Arrived:
 
@@ -162,7 +153,7 @@ public class ElevatorDoorMover : MonoBehaviour
                 {
                     currentDoorState = DoorState.ForcedOpen;
                 }
-                break;
+            break;
         }
     }
 
@@ -170,9 +161,6 @@ public class ElevatorDoorMover : MonoBehaviour
 
     private void ForceOpenDoors()
     {
-        currentTargetLeft = leftDoorOpenLocal;
-        currentTargetRight = rightDoorOpenLocal;
-
         if (!isDoorsMoving)
         {
             if (leftAnim != null)
@@ -328,54 +316,78 @@ public class ElevatorDoorMover : MonoBehaviour
 
     void ProcessDoorOperations()
     {
-        if (doorOperateSlowAttack.WasPressedThisFrame())
+        if (doorOperateSlowAttack.IsPressed())
         {
             PlaySlowAttack();
         }
     }
+
+    #region Attack Methods
 
     void PlaySlowAttack()
     {
         if (!isDoorBegunAttack)
         {
             ResetAllLeftAnimTriggers();
+            ResetAllRightAnimTriggers();
 
-            if (leftAnim != null)
-            {
-                leftAnim.SetTrigger(slowAttackParam);
-            }
+            leftAnim.SetTrigger(slowAttackParam);
+            rightAnim.SetTrigger(slowAttackParam);
 
-            if (rightAnim != null)
-            {
-                rightAnim.SetTrigger(slowAttackParam);
-            }
+            isDoorBegunAttack = true;
+            isDoorCompletedAttack = false;
+            return;
         }
 
-        bool leftFinished = IsDoorFinishedSlowAttack(leftAnim, "LeftDoor_Slow_Attack") || IsDoorFinishedSlowAttack(leftAnim, "SlowAttack");
-        bool rightFinished = IsDoorFinishedSlowAttack(rightAnim, "RightDoor_SlowAttack") || IsDoorFinishedSlowAttack(rightAnim, "SlowAttack");
+        bool leftFinished = IsDoorFinishedSlowAttack(leftAnim);
+        bool rightFinished = IsDoorFinishedSlowAttack(rightAnim);
 
-        if (IsDoorFinishedSlowAttack(leftAnim, "SlowAttack") && IsDoorFinishedSlowAttack(rightAnim, "SlowAttack") && doorOperateSlowAttack.WasPressedThisFrame())
+        if (isDoorBegunAttack && leftFinished && rightFinished)
         {
             isDoorBegunAttack = false;
-            isDoorCompletedAttack = true;   
-        }
-        else 
-        {
-            isDoorCompletedAttack = false;
+            isDoorCompletedAttack = true;
         }
     }
 
-    private bool IsDoorFinishedSlowAttack(Animator anim, string animationNameOrTag)
+    private bool IsDoorFinishedSlowAttack(Animator anim)
     {
-        var state = anim.GetCurrentAnimatorStateInfo(0);
-        var next = anim.GetNextAnimatorStateInfo(0);
+        if (anim == null) return false;
 
-        bool isCurrentlyIn = state.IsTag("SlowAttack");
-        bool isNext = next.IsTag("Empty");
+        AnimatorStateInfo state = anim.GetCurrentAnimatorStateInfo(0);
+        bool inEmptyState = state.IsName("Empty");
+        bool notTransitioning = !anim.IsInTransition(0);
 
-        // if we're neither in it nor transitioning to it, we’ve left
-        return !isCurrentlyIn && !isNext;
+        return inEmptyState && notTransitioning;
     }
+
+    void PlayMediumAttack()
+    {
+        if (!isDoorBegunAttack)
+        {
+            ResetAllLeftAnimTriggers();
+            ResetAllRightAnimTriggers();
+
+            leftAnim.SetTrigger(slowAttackParam);
+            rightAnim.SetTrigger(slowAttackParam);
+
+            isDoorBegunAttack = true;
+            isDoorCompletedAttack = false;
+            return;
+        }
+
+        bool leftFinished = IsDoorFinishedSlowAttack(leftAnim);
+        bool rightFinished = IsDoorFinishedSlowAttack(rightAnim);
+
+        if (isDoorBegunAttack && leftFinished && rightFinished)
+        {
+            isDoorBegunAttack = false;
+            isDoorCompletedAttack = true;
+        }
+    }
+
+    #endregion
+
+
 
     #region State Transition Handlers 
 
@@ -400,12 +412,18 @@ public class ElevatorDoorMover : MonoBehaviour
 
     public void PrepareForMovement()
     {
+        playerReadyToMove = false;
         currentDoorState = DoorState.PreMovement;
     }
 
     public void StartMoving()
     {
         currentDoorState = DoorState.Moving;
+    }
+
+    public void HandleFloorSelected()
+    {
+
     }
 
     public void ForceOpen()
